@@ -1,0 +1,22 @@
+{
+  "name": "lunchapp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "gulpfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "gulp": "^3.9.0",
+    "gulp-browserify": "^0.5.1",
+    "reactify": "^1.1.1"
+  },
+  "devDependencies": {
+    "babelify": "^7.2.0",
+    "browser-sync": "^2.11.0",
+    "gulp-babel": "^6.1.1",
+    "gulp-sass": "^2.1.1"
+  }
+}

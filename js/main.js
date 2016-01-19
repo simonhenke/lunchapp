@@ -37,8 +37,8 @@ var LocationList = React.createClass({
 		var locations = [];
 		self = this;
 
-		window.addEventListener("keypress", myEventHandler, false);
-		function myEventHandler(e){
+		$(document).keypress(keypressHandler);
+		function keypressHandler(e){
 		    var keyCode = e.keyCode;
 		    if(keyCode == 13){
 		    	var $focusedLocation = $(".location--focused");
@@ -52,16 +52,14 @@ var LocationList = React.createClass({
 		};
 
 
-
-
-        $.get("http://lunchapp/locations", function(result) {
-	      	// Initialise Locations
+        $.get("/example-data/locations.json", function(result) {
+        //$.get("http://lunchapp/locations", function(result) {
 	        locations = result;
 	        var i = 1;
 
 	        locations.map(function(location){
-	          	
-	        	$.get("http://lunchapp/usersAtLocation/"+location.location_id, function(users) {
+	        	$.get("/example-data/usersAt-"+location.location_id+".json", function(users) {
+	        	//$.get("http://lunchapp/usersAtLocation/"+location.location_id, function(users) {
 		      		location.users = users;
 		      		location.userCount = users.length;
 	      		}).done(function(){
@@ -76,8 +74,8 @@ var LocationList = React.createClass({
 	    }); // first get	
     }, 
 
-    componentWillUnMount: function(){
-    	window.removeEventListener('keypress', myEventHandler);
+    componentWillUnmount: function(){
+    	$(document).unbind('keypress', this.keypressHandler);
     },
 
     createVisit: function(location_id){
@@ -315,38 +313,75 @@ var LoginComponent = React.createClass({
 	}
 });
 
-var popupOnceMounted = false;
+
+
 var Popup = React.createClass({
 	
 	componentDidMount:function(){
 		var self = this;
-		if(!popupOnceMounted){
+
+		$(document).mouseup(mouseupHandler);
+		function mouseupHandler(e){
 			// Check for Click outside
-			$(document).mouseup(function (e){
-	            var container = $(".popup__wrapper");
-
-	            if (!container.is(e.target) // if the target of the click isn't the container...
-	                && container.has(e.target).length === 0) // ... nor a descendant of the container
-	            {
-	            	if($(".popup").length != 0){ // check if popup is actually visible
-	            		self.props.hidePopup();
-	            	}
-	                
-	            }
-	        });
-
-	        // Check for Escape Press
-	        $(document).keyup(function(e) {
-	     		if (e.keyCode == 27) {
-	     			if($(".popup").length != 0){ // check if popup is actually visible
-			    		self.props.hidePopup();  
-			    	}  
-			    }
-			});
-			popupOnceMounted = true;
+			var container = $(".popup__wrapper");
+            if (!container.is(e.target) // if the target of the click isn't the container...
+                && container.has(e.target).length === 0) // ... nor a descendant of the container
+            {
+            	if($(".popup").length != 0){ // check if popup is actually visible
+            		self.props.hidePopup();
+            	}
+            }
 		}
 
+		$(document).keyup(keyupHandler);
+		function keyupHandler(e){
+			if (e.keyCode == 27 || e.keyCode == 8) { // Escape | Backspace
+     			if($(".popup").length != 0){ // check if popup is actually visible
+		    		self.props.hidePopup();  
+		    	}  
+		    }
+		}
+
+		// use body so that the handler wont get overwritten
+		$("body").keypress(keypressHandler);
+		function keypressHandler(e){
+		    var keyCode = e.keyCode;
+		    if(keyCode == 13){
+		    	var $focusedLocation = $(".location--focused");
+		        if($(".popup")[0]){ // if popup visible
+		        	self.props.confirm();
+		     	}	 
+		    }
+		};
+
+		$("body").keydown(keydownHandler);
+		function keydownHandler(e){
+			if($(".popup")[0]){ // if popup visible
+				var keyCode = e.keyCode;
+				if(keyCode == 37){ //left
+					var currentVal = $(".popup__input").val();
+
+					$(".popup__input")[0].stepDown(10);
+				}
+				if(keyCode == 39){ //right
+					var currentVal = $(".popup__input").val();
+					$(".popup__input")[0].stepUp(10);
+				}
+			}
+		}
+
+
+
+
+		// Set Default Value
 		$(".popup__input").val("13:00");
+	},
+
+	componentWillUnmount: function(){
+		$(document).unbind('mouseup', this.mouseupHandler);
+		$(document).unbind('keyup', this.keyupHandler);
+		$("body").unbind('keypress', this.keypressHandler);
+		$("body").unbind('keydown', this.keydownHandler);
 	},
 
 	render: function() {	
@@ -354,14 +389,13 @@ var Popup = React.createClass({
 		var content;
 		var buttons;
 		var cancelButton=<a className="popup__button" onClick={this.props.hidePopup}>cancel</a>;
-
+		var confirmButton=<a className="popup__button" onClick={this.props.confirm}>create visit</a>
 		if(this.props.type == "createVisit"){
 			content = <div><p>{this.props.text}</p>
 						<input className="popup__input" type="time"/></div>
 						
-
-			buttons = <div>{cancelButton}
-						<a className="popup__button" href="#">create visit</a></div>
+			buttons = <div>{cancelButton} {confirmButton}
+						</div>
 		}
 
 	    return (
@@ -409,7 +443,8 @@ var App = React.createClass({
 	},
 
 	confirmPopup:function(){
-
+		console.log("confirmed");
+		this.hidePopup();
 	},
 
 	setLogin: function(_userId,_token){

@@ -57,11 +57,16 @@ $(document).keydown(function(e) {
 		$locations = $(".location-list li");
 	    switch(e.which) {
 	        case 37: // left
-	        	goToPreviousLocation();
+	        	if(!$(".popup")[0]){
+	        		goToPreviousLocation();
+	        	}
 	        break;
 
 	        case 39: // right
-	        	goToNextSnippet();
+	        	if(!$(".popup")[0]){
+	        		goToNextSnippet();
+	        	}
+	        	
 	        break;
 	        
 	        default: return; 

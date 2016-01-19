@@ -1,0 +1,35 @@
+.login{
+	
+	margin:$gap*5 auto;
+	text-align:center;
+
+	.form-group{
+		display:inline-block;
+	}
+
+	input[type="text"],input[type="password"]{
+		font-size:1.2em;
+		padding:$gap $gap*2;
+		background:rgba(#000,.5);
+		border:none;
+		color:rgba(#fff,.5);
+		display:inline-block;
+		margin:0 $gap/2; 
+
+		&:first-of-type{
+			margin-bottom:$gap;
+		}
+	}
+
+	button{
+		font-size:1.2em;
+		padding:$gap $gap*2;
+		background:white;
+		border:none;
+		text-transform:uppercase;
+		margin-top:$gap;
+		cursor:pointer;
+		outline:none;
+		color:grey;
+	}
+}

@@ -33,12 +33,25 @@ var LocationList = React.createClass({
 	},
 
 	componentDidMount: function () {
+		$.ajaxSetup({ cache: false });
 		var locations = [];
 		self = this;
 
-		function setLocationStateX(locations){
-			self.setLocationState(locations);
-		}
+		window.addEventListener("keypress", myEventHandler, false);
+		function myEventHandler(e){
+		    var keyCode = e.keyCode;
+		    if(keyCode == 13){
+		    	var $focusedLocation = $(".location--focused");
+		        if(!$(".popup")[0] && $focusedLocation[0]){ // if popup isnt visible
+		        	console.log("enter");
+		        	
+		        	self.createVisit($focusedLocation.data("location-id"));
+		     	}
+		        
+		    }
+		};
+
+
 
 
         $.get("http://lunchapp/locations", function(result) {
@@ -54,7 +67,7 @@ var LocationList = React.createClass({
 	      		}).done(function(){
 	      			if(i === locations.length){
 	      				// when finished reading all, set the state
-	      				setLocationStateX(locations);
+	      				self.setLocationState(locations);
 	      			}
 	      			i++;
 	      		});
@@ -62,6 +75,49 @@ var LocationList = React.createClass({
 
 	    }); // first get	
     }, 
+
+    componentWillUnMount: function(){
+    	window.removeEventListener('keypress', myEventHandler);
+    },
+
+    createVisit: function(location_id){
+    	
+    	this.props.showPopup("createVisit","when do you want to eat?",location_id);
+ 
+    	/*
+    	var self = this;
+
+    	$.get("http://lunchapp/visitstodayfromuser/"+this.props.currentUser, function(result) {
+		}).done(function(response){
+			if(response[0]){
+				alert("you already visit an other location today ! Todo(show info and delete possibility)");
+			}
+			else{
+				var settings = {
+				  "async": true,
+				  "crossDomain": true,
+				  "url": "http://lunchapp/entity/node",
+				  "method": "POST",
+				  "headers": {
+				    "cache-control": "no-cache",
+				    "content-type": "application/json",
+				    "x-csrf-token": this.props.token,
+				  },
+				  "processData": false,
+				  //"data": "{\n  \"type\":[{\"target_id\":\"visit\"}],\n  \"title\":[{\"value\":\"json-visit\"}],\n  \"field_user\":[{\"target_id\":\"1\"}],\n  \"field_location\":[{\"target_id\":\"3\"}],\n  \"field_date\":[{\"value\":\"2016-01-18T12:15:00\"}]\n}"
+				  "data": "{\n  \"type\":[{\"target_id\":\"visit\"}],\n  \"title\":[{\"value\":\"json-visit\"}],\n  \"field_user\":[{\"target_id\":\""+this.props.currentUser+"\"}],\n  \"field_location\":[{\"target_id\":\""+location_id+"\"}],\n  \"field_date\":[{\"value\":\"2016-01-18T12:15:00\"}]\n}",
+				  "error": function(xhr,status,error){
+					alert("you have to be logged in !");
+				  }
+				}
+
+				$.ajax(settings).done(function (response) {
+				  self.incrementUserCount(location_id);
+				});
+			}
+		});
+	*/
+    },
 
     incrementUserCount: function(location_id){
 
@@ -80,7 +136,7 @@ var LocationList = React.createClass({
 
     },
 
- 	render: function() {			
+ 	render: function() {	
 	    return (
 	    	<div>
 		     	<ul className="location-list">		     	 
@@ -93,13 +149,12 @@ var LocationList = React.createClass({
 						var cta;
 						//if(this.props.loggedIn){
 						if(true){
-							cta = <a onClick={this.incrementUserCount.bind(this,location.location_id)} className="location__cta">Auch</a>
+							cta = <a onClick={this.createVisit.bind(this,location.location_id)} className="location__cta">Auch</a>
 						}
 
-
-       					return <li key={i}>
+       					return <li key={i} data-index={i} data-location-id={location.location_id}>
            					<Location 
-           					
+           				
            					name={location.name} 
            					description={location.description} 
            					id={location.location_id} />
@@ -155,7 +210,13 @@ var LoginComponent = React.createClass({
 	login: function(e){
 		e.preventDefault();
 		//console.log(this.state.user);
-		this.sendLoginRequest();
+		if(this.state.user && this.state.password){
+			this.sendLoginRequest();
+		}
+		else{
+			console.log("error: empty field(s)");
+		}
+		
 	},
 
 	componentWillMount: function(){
@@ -163,31 +224,28 @@ var LoginComponent = React.createClass({
 		//this.checkLoginStatus();
 	},
 
-	getUserId: function(username){
+	getToken: function(){
+		var token;
+		var self = this;
+		$.get("http://lunchapp/rest/session/token", function(result) {
+			token = result;
+		}).done(function(){
+			self.getUserId(self.state.user,token);
+		});
+	},
+
+	getUserId: function(username,token){
 		var uid;
 		var self = this;
 		$.get("http://lunchapp/getUserId/"+username, function(result) {
 			uid = result[0].uid;
 		}).done(function(){
-			self.tellAppUserLoggedIn(uid);
+			self.tellAppUserLoggedIn(uid,token);
 		});
-		/*
-		var settings = {
-		  "async": true,
-		  "crossDomain": true,
-		  "url": "http://lunchapp/getUserId/simonhenke",
-		  "method": "GET",
-		  "headers": {
-		    "cache-control": "no-cache",
-		  }
-		}
-		$.ajax(settings).done(function (response) {
-		  console.log(response);
-		});*/
 	},
 
-	tellAppUserLoggedIn(userId){
-		this.props.setLogin(userId)
+	tellAppUserLoggedIn: function(userId,token){
+		this.props.setLogin(userId,token)
 	},
 
 	checkLoginStatus: function(){
@@ -208,7 +266,7 @@ var LoginComponent = React.createClass({
 
 		$.ajax(settings).done(function (response,statusText,request) {
 		  if(request.status == 200){
-		  	self.getUserId(self.state.user);
+		  	self.getToken();
 		  }
 		});
 	},
@@ -238,7 +296,6 @@ var LoginComponent = React.createClass({
 		}
 
 		$.ajax(settings).done(function (response,statusText,request) {
-		  //getToken();
 		  self.checkLoginStatus();
 		});
 	},
@@ -258,6 +315,69 @@ var LoginComponent = React.createClass({
 	}
 });
 
+var popupOnceMounted = false;
+var Popup = React.createClass({
+	
+	componentDidMount:function(){
+		var self = this;
+		if(!popupOnceMounted){
+			// Check for Click outside
+			$(document).mouseup(function (e){
+	            var container = $(".popup__wrapper");
+
+	            if (!container.is(e.target) // if the target of the click isn't the container...
+	                && container.has(e.target).length === 0) // ... nor a descendant of the container
+	            {
+	            	if($(".popup").length != 0){ // check if popup is actually visible
+	            		self.props.hidePopup();
+	            	}
+	                
+	            }
+	        });
+
+	        // Check for Escape Press
+	        $(document).keyup(function(e) {
+	     		if (e.keyCode == 27) {
+	     			if($(".popup").length != 0){ // check if popup is actually visible
+			    		self.props.hidePopup();  
+			    	}  
+			    }
+			});
+			popupOnceMounted = true;
+		}
+
+		$(".popup__input").val("13:00");
+	},
+
+	render: function() {	
+
+		var content;
+		var buttons;
+		var cancelButton=<a className="popup__button" onClick={this.props.hidePopup}>cancel</a>;
+
+		if(this.props.type == "createVisit"){
+			content = <div><p>{this.props.text}</p>
+						<input className="popup__input" type="time"/></div>
+						
+
+			buttons = <div>{cancelButton}
+						<a className="popup__button" href="#">create visit</a></div>
+		}
+
+	    return (
+	      <div className="popup">
+			<div className="popup__wrapper">
+				<div className="popup__border"></div>
+				<div className="popup__body">
+					{content}
+				</div>
+				{buttons}
+			</div>
+		</div>
+	    );
+	  }
+});
+
 
 // -------------------------------------------
 
@@ -266,28 +386,65 @@ var App = React.createClass({
 	getInitialState:function(){
 		return{
 			userId:"",
-			loggedIn:false
+			loggedIn:false,
+			token:"",
+			popup:"",
+			popupData:"",
+			popupText:"",
 		}
 	},
-	setLogin: function(_userId){
+
+	showPopup: function(type,text,storedData){
+		this.setState({
+			popup:type,
+			popupData: storedData,
+			popupText: text
+		});
+	},
+
+	hidePopup: function(){
+		this.setState({
+			popup:""
+		});
+	},
+
+	confirmPopup:function(){
+
+	},
+
+	setLogin: function(_userId,_token){
 		this.setState({
 			loggedIn:true,
-			userId:_userId
+			userId:_userId,
+			token:_token,
 		});
 
 	},
 	render: function() {	
 		
 		var loginComponent;
+		var popup;
+
 		if(!this.state.loggedIn){
 			loginComponent = <LoginComponent loggedIn={this.state.loggedIn} setLogin={this.setLogin} />
-		}		
+		}
+		if(this.state.popup){
+			popup = <Popup type={this.state.popup} 
+						   text={this.state.popupText} 
+						   storedData={this.state.popupData} 
+						   hidePopup={this.hidePopup}
+						   confirm={this.confirmPopup} />
+		}
+
 	    return (
 	      <div className="app">
-	      	<ReactCSSTransitionGroup transitionName="example" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
+	      	<ReactCSSTransitionGroup transitionName="login" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
 	      		{loginComponent}
 	      	</ReactCSSTransitionGroup>
-	      	<LocationList loggedIn={this.state.loggedIn} currentUser={this.state.userId} />
+	      	<LocationList showPopup={this.showPopup} loggedIn={this.state.loggedIn} currentUser={this.state.userId} token={this.state.token} />
+	      	<ReactCSSTransitionGroup transitionName="popup" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
+	      		{popup}
+	      	</ReactCSSTransitionGroup>
 	      </div>
 	    );
 	}

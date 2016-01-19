@@ -1,0 +1,57 @@
+.login-enter {
+  opacity: 0.01;
+}
+
+.login-enter.login-enter-active {
+  opacity: 1;
+  transition: opacity 300ms ease-in;
+}
+
+.login-leave {
+  opacity: 1;
+}
+
+.login-leave.login-leave-active {
+  opacity: 0.01;
+  transition: opacity 300ms ease-in;
+}
+
+
+
+
+.popup-enter {
+  opacity: 0.01;
+
+
+  .popup__wrapper{
+  	transform:translateY(-70%) translateX(-50%);  
+  }
+}
+
+.popup-enter.popup-enter-active {
+  opacity: 1;
+  transition: opacity 200ms;
+  
+  .popup__wrapper{
+  	transition:transform 400ms;
+  	transform:translateY(-50%) translateX(-50%);
+  }
+}
+
+.popup-leave {
+  opacity: 1;
+  .popup__wrapper{
+  	transition:transform 300ms;
+  	transform:translateY(-50%) translateX(-50%);
+  }
+
+}
+
+.popup-leave.popup-leave-active {
+  opacity: 0.01;
+  transition: opacity 200ms;
+
+  .popup__wrapper{
+  	transform:translateY(-70%) translateX(-50%); 
+  }
+}

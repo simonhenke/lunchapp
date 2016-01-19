@@ -52,13 +52,13 @@ var LocationList = React.createClass({
 		};
 
 
-        $.get("/example-data/locations.json", function(result) {
+        $.get(window.location.href+"/example-data/locations.json", function(result) {
         //$.get("http://lunchapp/locations", function(result) {
 	        locations = result;
 	        var i = 1;
 
 	        locations.map(function(location){
-	        	$.get("/example-data/usersAt-"+location.location_id+".json", function(users) {
+	        	$.get(window.location.href+"/example-data/usersAt-"+location.location_id+".json", function(users) {
 	        	//$.get("http://lunchapp/usersAtLocation/"+location.location_id, function(users) {
 		      		location.users = users;
 		      		location.userCount = users.length;

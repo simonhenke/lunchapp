@@ -15,8 +15,24 @@ body{
 }
 
 .help{
-	background:rgba(white,.4);
+	background:rgba(white,0);
 	padding:$gap
 }
 
+.logo{
+	text-align:center;
+	margin:$gap*4;
+
+	@media (max-width:$screen-md){
+		margin:$gap*2;
+	}
+	@media (max-width:$screen-xs){
+		margin:$gap;
+	}
+
+	img{
+		width:70%;
+		max-width:500px;
+	}
+}
 

@@ -16,9 +16,6 @@
   transition: opacity 300ms ease-in;
 }
 
-
-
-
 .popup-enter {
   opacity: 0.01;
 
@@ -44,7 +41,6 @@
   	transition:transform 300ms;
   	transform:translateY(-50%) translateX(-50%);
   }
-
 }
 
 .popup-leave.popup-leave-active {

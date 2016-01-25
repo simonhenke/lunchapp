@@ -1,6 +1,8 @@
 
 // Rating Logic
 
+/*
+
 $(document).on('mouseenter','.icon-star', function (event) {
 	var $parent = $(this).closest(".location__rating");
 	var $reachedThis = false;
@@ -24,25 +26,16 @@ $(document).on('mouseenter','.icon-star', function (event) {
 	});
 });
 
+*/
+
 
 $(function(){
-
 
 // Keyboard Navigation
 
 var blockKey = true;
 var $locations;
 var $locationPointer;
-
-/*
-$(document).keypress(function(e) {
-    if(e.which == 13) { // Enter
-    	console.log("enter");
-        var $focusedLocation = $(".location--focused");
-        console.log($focusedLocation.find(".location__cta"));
-        $focusedLocation.find(".location__cta").trigger("onClick");
-    }
-});*/
 
 $(document).keydown(function(e) {
 
@@ -51,10 +44,10 @@ $(document).keydown(function(e) {
 	}
 	if (blockKey) return;
 	blockKey = true;
-
+	
 	// prevent errors - only continue when locations in DOM
-	if($(".location-list li")[0]){ 
-		$locations = $(".location-list li");
+	if($(".location-list .locationItem")[0]){ 
+		$locations = $(".location-list .locationItem");
 	    switch(e.which) {
 	        case 37: // left
 	        	if(!$(".popup")[0]){
@@ -72,12 +65,11 @@ $(document).keydown(function(e) {
 	        default: return; 
 	    }
     }
-
     e.preventDefault();
 });
 
 function goToNextSnippet(){
-	
+	//console.log("go to next");
 	var $next;
 	if($locationPointer){
 		$locations.each(function(i,obj){
@@ -98,7 +90,7 @@ function goToNextSnippet(){
 
 
 function goToPreviousLocation(){
-	
+	//console.log("go to previous");
 	var $previous;
 	if($locationPointer){
 		$locations.each(function(i,obj){
@@ -129,12 +121,10 @@ function unfocusLocation(location){
 }
 
 function centerLocationOnScreen(location){
-	var height = $(location).height();
+	var height = $(location).innerHeight();
 	$('html, body').animate({
 		scrollTop: $(location).offset().top - 
 		($(window).height() - (height+70))/2
 	}, 400);
 }
-
-
 });

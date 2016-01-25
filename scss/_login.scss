@@ -1,7 +1,15 @@
 .login{
 	
-	margin:$gap*5 auto;
+	margin:$gap*4 auto;
 	text-align:center;
+
+	@media (max-width:$screen-md){
+		margin:$gap*2;
+	}
+
+	@media (max-width:$screen-xs){
+		margin:$gap;
+	}
 
 	.form-group{
 		display:inline-block;
@@ -32,4 +40,16 @@
 		outline:none;
 		color:grey;
 	}
+
+	input:-webkit-autofill {
+    	-webkit-text-fill-color:rgba(#fff,.5) !important;
+
+	}
+	input:-webkit-autofill,
+	input:-webkit-autofill:hover,
+	input:-webkit-autofill:focus,
+	input:-webkit-autofill:active {
+    transition: background-color 5000s ease-in-out 0s;
+	}
 }
+

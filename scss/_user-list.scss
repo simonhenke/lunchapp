@@ -1,0 +1,112 @@
+
+// Styling for the expanded location can be found in _location-expanded.scss
+
+.user-list{
+	margin:0;
+	padding: $gap*2;
+	list-style-type: none;
+	height:100%;
+	overflow:hidden;
+	z-index:10;
+	transition:visibility .0s;
+	position:absolute;
+	left:35%; // space of image
+	top:0;
+	width:50%; // 100% - 35%(image) - 15%(counter) 
+	-webkit-transform: translate3d(0, 0, 0);
+
+	&__item{
+		width:48%;
+		background:darken(#fff,3%);
+		display:inline-block;
+		padding:$gap;
+		margin-bottom:3%;
+
+		&:nth-of-type(odd){
+			margin-right:3%;
+		}
+	}
+
+	&__content{
+		transition:transform .3s;
+		transform:translateX(120%);
+		overflow:auto;
+		height:100%;
+	}
+
+	&__username{
+		color:$primary-color;
+	}
+	&__firstname{
+		margin-right:5px;
+	}
+	&__lastnameShort{
+		display:none;
+	}
+
+	&__group-title{
+		display:none;
+	}
+	&__picture{
+		width:40px;
+		height:40px;
+		border-radius:50%;
+		overflow:hidden;
+		position:relative;
+		float:left;
+		margin-right:$gap;
+		text-align:center;
+
+		img{
+			max-height:100%;
+		}
+	}
+	p{
+		margin:0;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		//width:100%;
+		overflow:hidden;
+	}
+
+	&.highlighted{
+		animation: scale .3s;
+	}
+}
+
+
+@media(max-width:$screen-md){
+	.user-list{
+		padding:$gap;
+		&__lastname{
+			display:none;
+		}
+		&__lastnameShort{
+			display:inline;
+		}
+	}			
+}
+
+@media(max-width:$screen-sm){
+	.user-list{
+		&__picture{
+			display:none;
+		}
+	}
+}
+
+@media(max-width:$screen-sm){
+	.user-list{
+		left:0;
+		width:75%;	
+	}
+}
+
+
+
+
+
+
+
+
+

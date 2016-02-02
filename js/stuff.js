@@ -1,34 +1,4 @@
 
-// Rating Logic
-
-/*
-
-$(document).on('mouseenter','.icon-star', function (event) {
-	var $parent = $(this).closest(".location__rating");
-	var $reachedThis = false;
-	var $hovered = this;
-	$parent.find(".icon-star").map(function(i,obj){
-
-		if($reachedThis){
-			$(obj).addClass("icon-star-inactive");
-		}else{
-			$(obj).addClass("icon-star-active");
-			if(obj === $hovered){
-				$reachedThis = true;
-			}
-		}
-	});
-}).on('mouseleave','.icon-star',  function(){
-	var $parent = $(this).closest(".location__rating");
-	$parent.find(".icon-star").map(function(i,obj){
-		$(obj).removeClass("icon-star-active");
-		$(obj).removeClass("icon-star-inactive");
-	});
-});
-
-*/
-
-
 $(function(){
 
 // Keyboard Navigation
@@ -45,18 +15,19 @@ $(document).keydown(function(e) {
 	if (blockKey) return;
 	blockKey = true;
 	
+	var inputIsFocused = $('input:focus').length > 0 || $('textarea:focus').length > 0;
 	// prevent errors - only continue when locations in DOM
 	if($(".location-list .locationItem")[0]){ 
 		$locations = $(".location-list .locationItem");
 	    switch(e.which) {
 	        case 37: // left
-	        	if(!$(".popup")[0]){
+	        	if(!$(".popup")[0] && !inputIsFocused){
 	        		goToPreviousLocation();
 	        	}
 	        break;
 
 	        case 39: // right
-	        	if(!$(".popup")[0]){
+	        	if(!$(".popup")[0] && !inputIsFocused){
 	        		goToNextSnippet();
 	        	}
 	        	
@@ -64,8 +35,9 @@ $(document).keydown(function(e) {
 	        
 	        default: return; 
 	    }
+	    e.preventDefault();
     }
-    e.preventDefault();
+    
 });
 
 function goToNextSnippet(){
@@ -110,7 +82,6 @@ function goToPreviousLocation(){
 }
 
 function focusLocation(location){
-
 	$(location).addClass("location--focused");
 	centerLocationOnScreen(location);
 }

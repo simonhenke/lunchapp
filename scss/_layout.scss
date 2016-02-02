@@ -3,6 +3,7 @@
 body{
 	background:url("../images/lunch-bg.jpg") no-repeat center center fixed;
 	background-size: cover;
+	//-webkit-transform: translate3d(0, 0, 0);
 }
 
 *{
@@ -21,11 +22,8 @@ body{
 
 .logo{
 	text-align:center;
-	margin:$gap*4;
+	margin:$gap*2;
 
-	@media (max-width:$screen-md){
-		margin:$gap*2;
-	}
 	@media (max-width:$screen-xs){
 		margin:$gap;
 	}
@@ -36,3 +34,41 @@ body{
 	}
 }
 
+.dateNotice{
+	text-align:center;
+	position:relative;
+	h1{
+		color:white;
+		text-shadow: 1px 1px 5px rgba(#000, .5);
+		font-size:3em;
+		margin:$gap/2;
+
+		&:before,&:after{
+			content:"";
+			position:absolute;
+			height:5px;
+			width:38%;
+			background:rgba(white,.3);
+			top:50%;
+			transform:translateY(-50%);
+			@media(max-width:$screen-lg){
+				width:35%;
+			}
+			@media(max-width:$screen-md){
+				width:31%;
+			}
+			@media(max-width:$screen-sm){
+				width:27%;
+			}
+			@media(max-width:$screen-xs){
+				width:15%;
+			}
+		}
+		&:before{
+			left:0;
+		}
+		&:after{
+			right:0;
+		}
+	}
+}

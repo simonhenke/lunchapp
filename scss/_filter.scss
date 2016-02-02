@@ -1,0 +1,126 @@
+.location-filter{
+    margin-top:$gap*2;
+    text-align: center;
+    &__name, &__visited-by{
+        @extend .transparent-input;
+        font-size:$font-size;
+        padding:$gap;
+    }
+
+    &__elements{
+
+        > *:not(:last-child){
+            margin-right:$gap;
+        }
+
+        display:inline-block;
+        margin-top:$gap;
+        transition:transform .25s cubic-bezier(.29,.47,.5,1.5), opacity .25s;
+        transform:scale(0.01);
+        opacity:0;
+
+        &--visible{
+            transform:scale(1);
+            opacity:1;
+        }
+    }
+
+    &__trigger{
+        display:block;
+        width:200px;
+        margin:0 auto;
+        @extend .styled-link;
+        font-size:1.6em;
+        opacity:.8;
+    }
+}
+
+.tags-filter{
+    position: relative;
+    text-align:initial;
+    //width: 270px;
+    display:inline-block;
+    min-width:150px;
+    padding: $gap;
+
+    cursor: pointer;
+    outline: none;
+    background:rgba(#000,.5);
+    color:rgba(#fff,.5);
+    &:after {
+        content: "";
+        width: 0;
+        height: 0;
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        margin-top: -3px;
+        border-width: 6px 6px 0 6px;
+        border-style: solid;
+        border-color: rgba(#fff,.5) transparent;
+    }
+}
+
+.tags-dropdown {
+    /* Size & position */
+    position: absolute;
+    top:100%;
+    left:0;
+    margin:0;
+    padding:0;
+    width:100%;
+    /* Styles */
+    background: white;
+    list-style: none;
+    transition: all 0.3s ease-out;
+    /* Hiding */
+    opacity: 0;
+    pointer-events: none;
+    z-index:100;
+
+
+    li {
+        position: relative; /* Enable absolute positioning for checkboxes */
+    }
+
+    li label {
+        display: block;
+        padding:$gap;
+        transition: all 0.3s ease-out;
+        color:$text-color;
+    }
+
+    li input /* Checkboxes */ {
+        position: absolute;
+        display: block;
+        right: 10px;
+        top: 50%;
+        margin-top: -8px;
+    }
+    
+    li:hover label {
+        background: #f0f0f0;
+    }
+
+    li input:checked ~ label {
+        color: $primary-color;
+    }
+}
+
+
+.tags-filter.active{
+    &:after{
+        border-width: 0 6px 6px 6px;
+    }
+    .tags-dropdown{
+        opacity: 1;
+        pointer-events: auto;
+    }
+}
+
+
+
+
+
+
+

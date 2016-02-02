@@ -1,0 +1,138 @@
+
+.new-location{
+	text-align:center;
+	margin-top:$gap*4;
+	&__link{
+		display:inline-block;
+		@extend .styled-link;
+		font-size:1.6em;
+		opacity:.8;
+	}
+	&__form{
+		width:100%;
+		max-width:600px;
+		margin:0 auto;
+		margin-top:$gap*2;
+		transition:transform .25s cubic-bezier(.29,.47,.5,1.5), opacity .25s;
+		transform:scale(0.01);
+		opacity:0;
+
+		&--visible{
+			transform:scale(1);
+			opacity:1;
+		}
+	}
+
+	&__file-input{
+		width: 0.1px;
+		height: 0.1px;
+		opacity: 0;
+		overflow: hidden;
+		position: absolute;
+		z-index: -1;
+		&:focus + label {
+			outline: 1px dotted #000;
+			outline: -webkit-focus-ring-color auto 5px;
+		}
+	}
+
+	&__name,&__description,&__externalImage, &__city, &__street, &__number{
+		display:inline-block;
+		@extend .transparent-input;
+	}
+
+	&__description{
+		display:block;
+		margin:auto;
+		width:100%;
+		margin-top:$gap;
+	}
+
+	&__name{
+		width:67%;
+		margin-right:3%;
+		@media(max-width:$screen-xs){
+			width:57%;
+		}
+	}
+
+	&__externalImage{
+		width:100%;
+		margin-top:$gap;
+	}
+
+	&__address{
+		margin-top:$gap;
+	}
+
+	&__city{
+		max-width:35%;
+		margin-right:$gap;
+	}
+	&__street{
+		max-width:50%;
+		margin-right:$gap;
+	}
+	&__number{
+		max-width:15%;
+		padding-left:$gap;
+		padding-right:$gap;
+		text-align:center;
+	}
+
+	&__file-upload{
+		width:30%;
+		display:inline-block;
+		@extend .white-button;
+		//@extend .pop-hover;
+		
+		@media(max-width:$screen-sm){
+			padding:$gap $gap;	
+		}
+		@media(max-width:$screen-xs){
+			padding:$gap/2 $gap/2;
+			width:40%;	
+		}
+		/* disable it cause its not working with drupal til now */
+		opacity:.4;
+		cursor:default;
+	}
+
+	&__submit{
+		@extend .white-button;
+		margin-top:$gap;
+	}
+}
+
+
+@media(max-width:$screen-sm){
+	.new-location{
+		&__city{
+			width:100%;
+			max-width: initial;
+		}
+		&__street{
+			margin-top:$gap;
+			margin-right:3%;
+			width:80%;
+			max-width:initial;
+		}
+		&__number{
+			width:17%;
+			max-width:initial;
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+

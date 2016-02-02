@@ -1,17 +1,14 @@
+
+
+
+// --------- Login form displayed when not logged in --------- //
+
 .login{
 	
-	margin:$gap*4 auto;
+	margin:$gap*2 auto;
 	text-align:center;
 
-	@media (max-width:$screen-md){
-		margin:$gap*2;
-	}
-
-	@media (max-width:$screen-xs){
-		margin:$gap;
-	}
-
-	.form-group{
+	&__inputs{
 		display:inline-block;
 	}
 
@@ -24,32 +21,107 @@
 		display:inline-block;
 		margin:0 $gap/2; 
 
-		&:first-of-type{
-			margin-bottom:$gap;
+		&:last-of-type{
+			margin-top:$gap;
+		}
+
+		@media(max-width:$screen-xs){
+			padding:$gap/2 $gap;
 		}
 	}
 
-	button{
-		font-size:1.2em;
-		padding:$gap $gap*2;
-		background:white;
-		border:none;
-		text-transform:uppercase;
-		margin-top:$gap;
-		cursor:pointer;
-		outline:none;
-		color:grey;
+	&__submit{
+		
+		@extend .white-button;
+		margin-left:10px;
+		@extend .pop-hover;
 	}
 
+	.register-text{
+		margin-left:$gap;
+		color:white;
+		opacity:.7;
+	}
+	.register-link{
+		@extend .styled-link;
+		text-decoration:none;
+		//font-size:1.2em;
+		//padding:14px;
+		opacity: .7;
+	}
+	.register-area{
+		margin-top:$gap;
+	}
+
+	// Prevent Chrome from styling autocomplete fields differently:
 	input:-webkit-autofill {
     	-webkit-text-fill-color:rgba(#fff,.5) !important;
-
 	}
 	input:-webkit-autofill,
 	input:-webkit-autofill:hover,
 	input:-webkit-autofill:focus,
 	input:-webkit-autofill:active {
     transition: background-color 5000s ease-in-out 0s;
+	}
+
+	@media (max-width:$screen-md){
+		margin:$gap*2;
+
+		&__submit{
+			padding:$gap/2;
+			font-size:1.1em;
+		}
+		&__inputs{
+			display:block;
+		}
+		.register-text{
+			display:none;
+		}
+		.register-area{
+			display:inline-block;
+		}
+	}
+
+	@media (max-width:$screen-xs){
+		margin:$gap;
+	}
+}
+
+
+// --------- Info displayed after being logged in --------- //
+
+.loggedInInfo{
+	text-align:center;
+	margin:$gap*2 auto;
+	color:white;
+	span{
+		font-size:1.3em;
+	}
+
+	*{
+		vertical-align: middle;
+	}
+	
+	&__name{
+		color:$logo-yellow;
+	}
+	&__logout-link{
+		@extend .styled-link;
+	}
+	&__picture{
+		width:35px;
+		height:35px;
+		border-radius:50%;
+		overflow:hidden;
+		position:relative;
+		text-align:center;
+		display:inline-block;
+		//margin-bottom: -8px;
+		margin-right: 5px;
+
+		img{
+			max-height:100%;
+		}
 	}
 }
 

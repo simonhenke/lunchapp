@@ -1,26 +1,57 @@
 [
   {
-    "name": "Vapiano ",
-    "description": "Willkommen bei VAPIANO, Ihrem italienischen Restaurant mit inspirierenden Gerichten, hochwertigen Kaffeespezialitäten und erlesenen Weinen.",
-    "location_id": "23",
-    "photo": "  <img src=\"http://lunchapp/sites/default/files/2016-01/pizza.jpg\" width=\"890\" height=\"593\" alt=\"pizza photo\" typeof=\"foaf:Image\" />\n\n"
-  },
-  {
-    "name": "Bäcker an der Post",
-    "description": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat",
-    "location_id": "8",
-    "photo": "  <img src=\"http://lunchapp/sites/default/files/2016-01/bread.jpg\" width=\"890\" height=\"593\" alt=\"bread photo\" typeof=\"foaf:Image\" />\n\n"
+    "name": "Bob &amp; Mary ",
+    "description": "Im Restaurant mit modernem Design werden Burger aus aller Welt, Salate und hausgemachte Pommes serviert.",
+    "location_id": "2",
+    "photo": "  <img src=\"/example-data/pictures/burger_0.jpg\" width=\"890\" height=\"593\" alt=\"burger photo\" typeof=\"foaf:Image\" />\n\n",
+    "external_image": "",
+    "city": "Düsseldorf",
+    "street": "Hammer Str.",
+    "house_number": "26",
+    "distance": "0.40"
   },
   {
     "name": "Fishhouse Deluxe",
     "description": "Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet",
     "location_id": "3",
-    "photo": "  <img src=\"http://lunchapp/sites/default/files/2016-01/fish.jpg\" width=\"890\" height=\"596\" alt=\"fish photo\" typeof=\"foaf:Image\" />\n\n"
+    "photo": "  <img src=\"/example-data/pictures/fish.jpg\" width=\"890\" height=\"596\" alt=\"fish photo\" typeof=\"foaf:Image\" />\n\n",
+    "external_image": "",
+    "city": "Düsseldorf",
+    "street": "Berger Straße",
+    "house_number": "3",
+    "distance": "2.70"
   },
   {
-    "name": "Bob and Mary ",
-    "description": "Im Restaurant mit modernem Design werden Burger aus aller Welt, Salate und hausgemachte Pommes serviert.",
-    "location_id": "2",
-    "photo": "  <img src=\"http://lunchapp/sites/default/files/2016-01/burger_0.jpg\" width=\"890\" height=\"593\" alt=\"burger photo\" typeof=\"foaf:Image\" />\n\n"
+    "name": "Bäcker an der Post",
+    "description": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat",
+    "location_id": "8",
+    "photo": "  <img src=\"/example-data/pictures/bread.jpg\" width=\"890\" height=\"593\" alt=\"bread photo\" typeof=\"foaf:Image\" />\n\n",
+    "external_image": "",
+    "city": "Düsseldorf",
+    "street": "Hammer Str.",
+    "house_number": "27",
+    "distance": "0.20"
+  },
+  {
+    "name": "Vapiano ",
+    "description": "Willkommen bei VAPIANO, Ihrem italienischen Restaurant mit inspirierenden Gerichten, hochwertigen Kaffeespezialitäten und erlesenen Weinen.",
+    "location_id": "23",
+    "photo": "  <img src=\"/example-data/pictures/pizza.jpg\" width=\"890\" height=\"593\" alt=\"pizza photo\" typeof=\"foaf:Image\" />\n\n",
+    "external_image": "",
+    "city": "Düsseldorf",
+    "street": "Hammer Str.",
+    "house_number": "17",
+    "distance": "0.40"
+  },
+  {
+    "name": "Saft-Bar 3000",
+    "description": "Smoothie Bars &amp; Saftbars avancieren zu einer genialen Geschäftsidee, die der steigenden Nachfrage nach gesunder Ernährung vollkommen gerecht werden. In England und den USA verzeichnet der Saftbar &amp; Smoothie-Markt auch nach vielen Jahren noch Wachstum",
+    "location_id": "107",
+    "photo": "",
+    "external_image": "https://static.pexels.com/photos/7412/pexels-photo-large.jpg",
+    "city": "Düsseldorf",
+    "street": "Ackerstraße ",
+    "house_number": "142",
+    "distance": "4.60"
   }
 ]

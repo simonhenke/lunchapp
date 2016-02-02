@@ -6,6 +6,11 @@ var Shuffle = require('react-shuffle');
 var LinkedStateMixin = require('react-addons-linked-state-mixin');
 //var MagicMove = require('react-magic-move');
 
+
+
+// -----------
+
+
 // Components:
 // ----------------------------------------------------------------------
 
@@ -15,7 +20,11 @@ var LocationList = React.createClass({
 	
 	/** --- React function to define component features ----- */
 	getInitialState: function(){
-		return{locations: []};
+		return{
+			locations: [],
+			filteredLocations: [],
+			noResult: false
+		};
 	},
 
 	/** --- Sorts an array of locations based on their userCount -----*/
@@ -42,17 +51,19 @@ var LocationList = React.createClass({
 		var self = this;
 		$.ajaxSetup({ cache: false });
 		var locations = [];
-		//$.get("example-data/locations.json", function(result) {
-        $.get("http://lunchapp/locations", function(result) {
+		$.get("example-data/locations.json", function(result) {
+        //$.get("http://lunchapp/locations", function(result) {
 	        locations = result;
 	        var i = 1;
 
 	        locations.map(function(location){
 	        	// Wait for Rating & User Data
-		        $.when($.ajax("http://lunchapp/usersAtLocation/"+location.location_id),
-		        //$.when($.ajax("example-data/usersAt-"+location.location_id+".json"),
-		        	   $.ajax( "http://lunchapp/ratingsfromlocation/"+location.location_id)
+		        //$.when($.ajax("http://lunchapp/usersAtLocation/"+location.location_id),
+		        $.when($.ajax("example-data/usersAt-"+location.location_id+".json"),
+		        	  // $.ajax( "http://lunchapp/ratingsfromlocation/"+location.location_id)
+		        	   $.ajax("example-data/ratingsAt-"+location.location_id+".json")
 		        ).done(function( a1, a2 ) { 
+		        	console.log("done");
 					var userData = a1[0]  
 					var ratingData = a2[0];
 					location.users = userData;
@@ -68,6 +79,8 @@ var LocationList = React.createClass({
 		      			location.rating = sum/ratingData.length;
 		      		}
 		      		else{location.rating = undefined;}
+
+		      		console.log(i);
 
 		      		if(i === locations.length){ // all data read
 		      			self.setLocationState(locations);
@@ -284,54 +297,113 @@ var LocationList = React.createClass({
     	//}
     },
 
+    filterLocations: function(filter){
+    	_locations = this.state.locations.slice(0);
+    	if(filter){
+    		filter.map(function(filterElement){
+    			switch(filterElement.type){
+
+    				case "tags":
+    					
+    				break;
+
+    				case "rating":
+    					_locations = _locations.filter(function(obj) {
+ 							return Math.round(obj.rating) >= filterElement.value;
+						});
+    				break;
+
+    				case "name":
+    					_locations = _locations.filter(function(obj) {
+ 							return obj.name.toLowerCase().indexOf(filterElement.value.toLowerCase()) > -1;
+						});
+    				break;
+
+    				case "visitedBy":
+    					_locations = _locations.filter(function(obj) {
+    						var found = false;
+ 							obj.users.map(function(user){
+ 								var name = user.firstname+" "+user.lastname;
+ 								if(name.toLowerCase().indexOf(filterElement.value.toLowerCase()) > -1){
+ 									found = true;
+ 								}
+ 							});
+ 							return found;
+						});
+    				break;
+    			}	
+    		});
+    		if(_locations[0]){
+    			this.setState({
+    				filteredLocations:_locations,
+    				noResult: false
+    			});
+    		}else{
+    			this.setState({
+    				noResult: true
+    			});
+    		}
+    		
+    	}else{
+    		this.setState({filteredLocations:[]});
+    	}
+    	
+    },
+
     /** --- React Function to render component ----- */
  	render: function() {
- 		var footer;
- 		if(this.state.locations[0]){
-			//footer = 
-		}	
+ 		
+ 		var filtered = this.state.filteredLocations;
+ 		var renderedLocations = filtered[0] ? filtered : this.state.locations; 
+
+ 		var locations;
+ 		if(!this.state.noResult){
+	 		locations = 
+	 		renderedLocations.map(function(location,i){
+				var counter,cta,users;
+				if(location.userCount > 0){
+					counter = <span onClick={this.counterClickHandler.bind(this,i)} className="location__user-count">{location.userCount}</span>;
+					users = <UserList users={location.users}/>;
+				}
+				
+				if(this.props.loggedIn){
+					cta = <a onClick={this.createVisit.bind(this,location.location_id)} className="location__cta">Auch</a>
+				}
+				else{
+					cta = <a onClick={this.showPopup.bind(this,"error","You need to be logged in for this!")} className="location__cta">Auch</a>
+				}		
+
+					return <li className={"locationItem"} key={i} data-index={i} data-location-id={location.location_id}>
+						<div className={"locationItem__wrapper"}>
+						<Location 
+							data={location}
+							index={i}
+							titleClickHandler={this.expandLocationItem}/>
+
+						<Rating
+							stars={location.rating}
+							starClicked={this.starClicked} 
+							location_id={location.location_id}
+							loggedIn = {this.props.loggedIn}
+							showPopup = {this.props.showPopup}/> 
+						
+						{cta}    
+			    				
+	   				<div className="location__counter-box">{counter}</div>
+	   				{users}	
+
+	   				</div>
+					</li>;
+			},this)
+		}
+
 	    return (
 	    	<div>
 
-	    	<LocationFilter />
+	    	<LocationFilter filterChanged={this.filterLocations} />
 
 	    	<ul className="location-list">		     	 
-    			{this.state.locations.map(function(location,i){
-    				var counter,cta,users;
-					if(location.userCount > 0){
-						counter = <span onClick={this.counterClickHandler.bind(this,i)} className="location__user-count">{location.userCount}</span>;
-						users = <UserList users={location.users}/>;
-					}
-					
-					if(this.props.loggedIn){
-						cta = <a onClick={this.createVisit.bind(this,location.location_id)} className="location__cta">Auch</a>
-					}
-					else{
-						cta = <a onClick={this.showPopup.bind(this,"error","You need to be logged in for this!")} className="location__cta">Auch</a>
-					}		
-
-   					return <li className={"locationItem"} key={i} data-index={i} data-location-id={location.location_id}>
-       					<div className={"locationItem__wrapper"}>
-       					<Location 
-       						data={location}
-       						index={i}
-       						titleClickHandler={this.expandLocationItem}/>
-
-       					<Rating
-       						stars={location.rating}
-       						starClicked={this.starClicked} 
-       						location_id={location.location_id}
-       						loggedIn = {this.props.loggedIn}
-       						showPopup = {this.props.showPopup}/> 
-      					
-      					{cta}    
-      		    				
-	       				<div className="location__counter-box">{counter}</div>
-	       				{users}	
-
-	       				</div>
-   					</li>;
-				},this)}
+    			{locations}
 		    </ul>
 		    </div>
 	    );
@@ -456,33 +528,37 @@ var CreateLocationForm = React.createClass({
 		var origin = originObject.name;
 		var dest = this.state.city+"+"+this.state.street+"+"+this.state.houseNumber;
 		
-		//origin ="Düsseldorf+Am Handelshafen+2";
+		origin ="Düsseldorf+Am Handelshafen+2";
 		//dest = "Düsseldorf+Hammerstraße+26";
 
-		/*
-		var key = this.props.distanceApiKey;
-		var mode = "bicycling";
-		var urlBase = "https://maps.googleapis.com/maps/api/distancematrix/json?"
-		var urlParam = "origins="+origin+"&destinations="+dest+"&mode="+mode+"&key="+key+"&callback=distanceResult";
-		*/
-
 		
-  		var service = new google.maps.DistanceMatrixService();
-		    service.getDistanceMatrix({
-		        origins: [origin],
-		        destinations: [dest],
-		        travelMode: google.maps.TravelMode.BICYCLING,
-		    }, function (response, status) {
-		        if (status == google.maps.DistanceMatrixStatus.OK && response.rows[0].elements[0].status != "ZERO_RESULTS") {
-		            var distance = response.rows[0].elements[0].distance.text;
-		         	var distanceVal = distance.substring(0,distance.indexOf("km")-1);
-		         	distanceVal = distanceVal.replace(/,/g,'.');
-		         	self.createLocationRequest(distanceVal);
-		        } else {
-		            console.log("Unable to calculate distance.");
-		        }
-		    });
+		var service = new google.maps.DistanceMatrixService();
+	    service.getDistanceMatrix({
+	        origins: [origin],
+	        destinations: [dest],
+	        travelMode: google.maps.TravelMode.BICYCLING,
+	    }, function (response, status) {
+	        if (status == google.maps.DistanceMatrixStatus.OK && response.rows[0].elements[0].status != "ZERO_RESULTS") {
+	            var distance = response.rows[0].elements[0].distance.text;
+	         	var distanceVal = distance.substring(0,distance.indexOf("km")-1);
+	         	distanceVal = distanceVal.replace(/,/g,'.');
+	         //	self.createLocationRequest(distanceVal);
+	        } else {
+	            console.log("Unable to calculate distance.");
+	        }
+	    });
+	},
 
+	submitFormHandler: function(){
+		if(this.state.name){
+			if(this.state.city && this.state.street && this.state.houseNumber){
+				this.checkIfLocationExists();
+			}else{
+				this.props.showPopup("error","Error: Address fields not complete");
+			}
+		}else{
+			this.props.showPopup("error","Error: You forgot the name of the location!");
+		}
 	},
 
 	createLocationRequest: function(distance){
@@ -524,7 +600,7 @@ var CreateLocationForm = React.createClass({
 		      		<input className="new-location__street" type="text" placeholder="street" valueLink={this.linkState('street')} />
 		      		<input className="new-location__number" type="text" placeholder="nr." valueLink={this.linkState('houseNumber')} />
 	      		</div>
-	      		<button className="new-location__submit" type="button" onClick={this.checkIfLocationExists}>Create</button>
+	      		<button className="new-location__submit" type="button" onClick={this.submitFormHandler}>Create</button>
 	      	</form>
 	      </div>
 	    );
@@ -566,45 +642,98 @@ var Rating = React.createClass({
 /** === A star rating from 1 to 5 =====*/
 var LocationFilter = React.createClass({
 
+	getInitialState: function(){
+		return{
+			filter:[],
+			starsSelected:""
+		}
+	},
+
 	componentDidMount: function(){
-		function DropDown(el) {
-		    this.dd = el;
-		    this.opts = this.dd.find('ul.dropdown > li');
-		    this.val = [];
-		    this.index = [];
-		    this.initEvents();
-		}
-		DropDown.prototype = {
-		    initEvents : function() {
-		        var obj = this;
-
-		        obj.dd.on('click', function(event){
-		            $(this).toggleClass('active');
-		            event.stopPropagation();
-		        });
-
-		        obj.opts.children('label').on('click',function(event){
-		            var opt = $(this).parent(),
-		                chbox = opt.children('input'),
-		                val = chbox.val(),
-		                idx = opt.index();
-
-		            ($.inArray(val, obj.val) !== -1) ? obj.val.splice( $.inArray(val, obj.val), 1 ) : obj.val.push( val );
-		            ($.inArray(idx, obj.index) !== -1) ? obj.index.splice( $.inArray(idx, obj.index), 1 ) : obj.index.push( idx );
-		        });
-		    },
-		    getValue : function() {
-		        return this.val;
-		    },
-		    getIndex : function() {
-		        return this.index;
-		    }
-		}
-		var dd = new DropDown( $('#dd') );
+		$("#dd").click(function(){
+			$(this).toggleClass("active");
+		});
 	},	
 
 	minRatingChanged: function(stars){
+		if(stars == 1){
+			this.adjustFilter("rating","");
+			this.setState({starsSelected:""});
+		}else{
+			this.adjustFilter("rating",stars);
+			this.setState({starsSelected:stars});
+		}
+		
+	},
 
+	locationNameChanged: function(){
+		var val = $(".location-filter__name").val();
+		this.adjustFilter("name",val);
+	},
+
+	userNameChanged: function(){
+		var val = $(".location-filter__visited-by").val();
+		this.adjustFilter("visitedBy",val);
+	},
+
+	tagsChanged: function(cb){
+		var _filter = this.state.filter;
+		var changedTag = $(cb +"+ label").text();
+		var tags = [];
+
+		var tagFilter = _filter.filter(function( obj ) {
+ 			return obj.type == "tags";
+		});
+		if(tagFilter[0]){
+			tags = tagFilter[0].value.slice(0); // copy existing tags
+		}
+
+		// -- adjust tag array in regards to user input
+		if($(cb).prop('checked')){			
+			tags.push(changedTag); // add
+		}else{
+			tags = jQuery.grep(tags,function(value){
+				return value != changedTag; //remove
+			})
+		}
+
+		this.adjustFilter("tags",tags);
+	},
+
+	adjustFilter:function(_type,_value){
+		var _filter = this.state.filter.slice(0);
+		var initValue = "";
+		if(_type == "tags"){
+			initValue = [];
+		}
+
+		// -- get existing Tag Filter Element or create a new one
+		var filterElem = _filter.filter(function( obj ) {
+ 			return obj.type == _type;
+		});
+		if(!filterElem[0]){
+			filterElem = {type:_type,value:initValue}; 
+			_filter.push(filterElem);
+		}else{
+			filterElem = filterElem[0];
+		}
+
+		// -- make adjustments
+		filterElem.value = _value;
+		
+		// -- if value empty, remove filter Element 
+		var hasValue = _type == "tags" ? filterElem.value[0] : filterElem.value;
+		if(!hasValue){
+			_filter = jQuery.grep(_filter,function(value){
+				return value != filterElem; 
+			})
+		}
+
+		// -- set the state and call parent function
+		this.props.filterChanged(_filter);
+		this.setState({
+			filter: _filter
+		});
 	},
 
 	hideOrShowFilter: function(){
@@ -623,20 +752,28 @@ var LocationFilter = React.createClass({
 		var tagChoice = 
 		<div id="dd" className="tags-filter">Tags
 			<ul className="tags-dropdown">
-				<li><input type="checkbox" id="el-1" name="el-1"/><label htmlFor="el-1">vegetarian</label></li>
-				<li><input type="checkbox" id="el-2" name="el-2"/><label htmlFor="el-2">low budget</label></li>
-				<li><input type="checkbox" id="el-3" name="el-3"/><label htmlFor="el-3">Pizza</label></li>
+				<li><input type="checkbox" id="el-1" name="el-1" onChange={this.tagsChanged.bind(this,"#el-1")}/><label htmlFor="el-1">vegetarian</label></li>
+				<li><input type="checkbox" id="el-2" name="el-2" onChange={this.tagsChanged.bind(this,"#el-2")}/><label htmlFor="el-2">low budget</label></li>
+				<li><input type="checkbox" id="el-3" name="el-3" onChange={this.tagsChanged.bind(this,"#el-3")}/><label htmlFor="el-3">Pizza</label></li>
 			</ul>
 		</div>
 
+		var ratingClass = "rating location-filter__rating"; 
+		var stars = this.state.starsSelected;
+		if(stars){
+			ratingClass += " rating-"+stars;
+		}
+
 		var rating = 
-		<div className=" rating location-filter__rating">
+		<div className={ratingClass}>
 			<span>min.</span>
+			<div className="icon-stars">
 			<div className="icon-star star-5" onClick={this.minRatingChanged.bind(this,5)}></div>
 			<div className="icon-star star-4" onClick={this.minRatingChanged.bind(this,4)}></div>
 			<div className="icon-star star-3" onClick={this.minRatingChanged.bind(this,3)}></div>
 			<div className="icon-star star-2" onClick={this.minRatingChanged.bind(this,2)}></div>
 			<div className="icon-star star-1" onClick={this.minRatingChanged.bind(this,1)}></div>
+   			</div>
    		</div>
 
 		return (
@@ -645,8 +782,8 @@ var LocationFilter = React.createClass({
 	      		<div className="location-filter__elements">
 	      			{tagChoice}
 	      			{rating}
-	      			<input className="location-filter__name" type="text" placeholder="Location Name" />
-	      			<input className="location-filter__visited-by" type="text" placeholder="Visited By" />
+	      			<input className="location-filter__name" type="text" placeholder="Location Name" onChange={this.locationNameChanged} />
+	      			<input className="location-filter__visited-by" type="text" placeholder="Visited By" onChange={this.userNameChanged} />
        			</div>
        		</div>
 	    );
@@ -700,7 +837,8 @@ var UserList = React.createClass({
 	 				imageAttributes = user.picture.match(/"(.*?)"/);
 	 				imageSrc = imageAttributes[0].replace(/['"]+/g, '');
 	 			}else{
-					imageSrc = "http://lunchapp/sites/default/files/profilepictures/unknown.png"
+					//imageSrc = "http://lunchapp/sites/default/files/profilepictures/unknown.png"
+					imageSrc = "/example-data/pictures/unknown.png"
 				}
 
 				firstname = user.firstname ? user.firstname : "Unknown";

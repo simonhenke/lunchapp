@@ -1,6 +1,6 @@
 $star-highlight-color: #f4c600;
 $star-color-1: $light-grey;
-$star-color-2: rgba(#000,.5);
+$star-color-2: rgba(#fff,.5);
 $rating-width: 160px;
 $rating-width-small: 130px;
 
@@ -41,17 +41,28 @@ $rating-width-small: 130px;
 
 	display:inline-block;
 	vertical-align:middle;
-	padding:7px;
 	position:relative;
+	background:rgba(#000,.5);
+    padding:10px $gap;
+    margin-bottom:1px;
+	text-align:left;
 
 	span{
-		font-size:1.3em;
-		font-weight:bold;
 		color:$star-color-2;
 		margin-right:$gap/2;
 	}
 
-	.icon-star{
+	.icon-stars{
+		display:inline-block;
+		vertical-align: middle;
+		//margin-bottom:-5px;
+	}
+
+	.icon-stars:hover .icon-star{
+		color: $star-color-2 !important;
+	}
+
+	.icon-stars .icon-star{
 		color:$star-color-2;
 		font-size:1.6em;
 		&:hover{
@@ -61,8 +72,17 @@ $rating-width-small: 130px;
 			}
 		}
 	}
-	&:hover .icon-star{
-		color: $star-color-2;
+	.icon-stars .star-1:hover{ // min rating 1 = no rating filter 
+		color: $star-color-2 !important;
+	}
+	
+	@media(max-width:$screen-xs){
+		span{
+			display:none;
+		}
+		.icon-stars .icon-star{
+			font-size:1.5em;
+		}		
 	}
 }
 

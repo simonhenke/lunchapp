@@ -1,6 +1,8 @@
 .location-filter{
     margin-top:$gap*2;
     text-align: center;
+    position:relative;
+    z-index:10;
     &__name, &__visited-by{
         @extend .transparent-input;
         font-size:$font-size;
@@ -11,6 +13,16 @@
 
         > *:not(:last-child){
             margin-right:$gap;
+        }
+
+        @media(max-width:$screen-md){
+           > *{
+                width:45%;
+                margin-right:$gap;
+           }
+           > *:nth-child(odd):not(:first-child){
+                margin-top:$gap;
+           }
         }
 
         display:inline-block;
@@ -24,7 +36,6 @@
             opacity:1;
         }
     }
-
     &__trigger{
         display:block;
         width:200px;

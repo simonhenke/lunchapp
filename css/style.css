@@ -633,7 +633,26 @@ body {
 
 .help {
   background: rgba(255, 255, 255, 0);
-  padding: 15px; }
+  padding: 15px;
+  margin: auto;
+  max-width: 600px;
+  margin-top: 75px;
+  text-align: center; }
+  .help ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0; }
+  .help li {
+    background: rgba(255, 255, 255, 0.3);
+    padding: 5px;
+    margin-bottom: 5px; }
+  .help span {
+    font-size: 2em;
+    background: #c88152;
+    margin-bottom: 5px;
+    display: block;
+    color: white;
+    padding: 15px; }
 
 .logo {
   text-align: center;
@@ -781,22 +800,33 @@ body {
 .location-filter__rating {
   display: inline-block;
   vertical-align: middle;
-  padding: 7px;
-  position: relative; }
+  position: relative;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 10px 15px;
+  margin-bottom: 1px;
+  text-align: left; }
   .location-filter__rating span {
-    font-size: 1.3em;
-    font-weight: bold;
-    color: rgba(0, 0, 0, 0.5);
+    color: rgba(255, 255, 255, 0.5);
     margin-right: 7.5px; }
-  .location-filter__rating .icon-star {
-    color: rgba(0, 0, 0, 0.5);
+  .location-filter__rating .icon-stars {
+    display: inline-block;
+    vertical-align: middle; }
+  .location-filter__rating .icon-stars:hover .icon-star {
+    color: rgba(255, 255, 255, 0.5) !important; }
+  .location-filter__rating .icon-stars .icon-star {
+    color: rgba(255, 255, 255, 0.5);
     font-size: 1.6em; }
-    .location-filter__rating .icon-star:hover {
+    .location-filter__rating .icon-stars .icon-star:hover {
       color: #f4c600 !important; }
-      .location-filter__rating .icon-star:hover ~ .icon-star {
+      .location-filter__rating .icon-stars .icon-star:hover ~ .icon-star {
         color: #f4c600 !important; }
-  .location-filter__rating:hover .icon-star {
-    color: rgba(0, 0, 0, 0.5); }
+  .location-filter__rating .icon-stars .star-1:hover {
+    color: rgba(255, 255, 255, 0.5) !important; }
+  @media (max-width: 560px) {
+    .location-filter__rating span {
+      display: none; }
+    .location-filter__rating .icon-stars .icon-star {
+      font-size: 1.5em; } }
 
 .location__rating {
   position: absolute;
@@ -845,7 +875,8 @@ body {
   list-style-type: none;
   margin: 0;
   padding: 0;
-  margin-top: 45px; }
+  margin-top: 45px;
+  position: relative; }
   .location-list .locationItem:not(:last-of-type) {
     margin-bottom: 30px; }
   .location-list .locationItem {
@@ -911,7 +942,6 @@ body {
       font-size: 3em;
       left: 50%;
       top: 50%;
-      z-index: 40;
       transform: translateY(-75%) translateX(-50%); }
     .location__image:hover:after {
       transform: translateY(-50%) translateX(-50%);
@@ -1026,8 +1056,7 @@ body {
     cursor: pointer;
     transition: background .15s, transform .15s;
     font-size: 1.2em;
-    transition: transform .3s;
-    z-index: 20; }
+    transition: transform .3s; }
     .location__cta:hover {
       transform: scale(1.1); }
     @media (max-width: 992px) {
@@ -1076,7 +1105,6 @@ body {
   .location__image {
     width: 75%;
     background: grey;
-    z-index: 10;
     opacity: 0;
     visibility: hidden; }
     .location__image img {
@@ -1159,7 +1187,7 @@ body {
   .user-list__picture {
     display: none; } }
 
-@media (max-width: 768px) {
+@media (max-width: 560px) {
   .user-list {
     left: 0;
     width: 75%; } }
@@ -1315,7 +1343,9 @@ body {
 
 .location-filter {
   margin-top: 30px;
-  text-align: center; }
+  text-align: center;
+  position: relative;
+  z-index: 10; }
   .location-filter__name, .location-filter__visited-by {
     font-size: 16px;
     padding: 15px; }
@@ -1327,6 +1357,12 @@ body {
     opacity: 0; }
     .location-filter__elements > *:not(:last-child) {
       margin-right: 15px; }
+    @media (max-width: 992px) {
+      .location-filter__elements > * {
+        width: 45%;
+        margin-right: 15px; }
+      .location-filter__elements > *:nth-child(odd):not(:first-child) {
+        margin-top: 15px; } }
     .location-filter__elements--visible {
       transform: scale(1);
       opacity: 1; }

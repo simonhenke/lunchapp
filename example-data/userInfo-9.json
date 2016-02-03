@@ -3,6 +3,6 @@
     "username": "hanshungrig",
     "firstname": "Hans",
     "lastname": "Hungrig",
-    "picture": "  <img src=\"/example-data/pictures/hanshungrig.jpg\" width=\"85\" height=\"85\" alt=\"\" typeof=\"foaf:Image\" />\n\n"
+    "picture": "  <img src=\"example-data/pictures/hanshungrig.jpg\" width=\"85\" height=\"85\" alt=\"\" typeof=\"foaf:Image\" />\n\n"
   }
 ]

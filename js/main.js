@@ -839,7 +839,7 @@ var UserList = React.createClass({
 	 				imageSrc = imageAttributes[0].replace(/['"]+/g, '');
 	 			}else{
 					//imageSrc = "http://lunchapp/sites/default/files/profilepictures/unknown.png"
-					imageSrc = "/example-data/pictures/unknown.png"
+					imageSrc = "example-data/pictures/unknown.png"
 				}
 
 				firstname = user.firstname ? user.firstname : "Unknown";

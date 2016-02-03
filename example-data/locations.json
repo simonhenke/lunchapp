@@ -14,7 +14,7 @@
     "name": "Fishhouse Deluxe",
     "description": "Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet",
     "location_id": "3",
-    "photo": "  <img src=\"/lunchapp/example-data/pictures/fish.jpg\" width=\"890\" height=\"596\" alt=\"fish photo\" typeof=\"foaf:Image\" />\n\n",
+    "photo": "  <img src=\"example-data/pictures/fish.jpg\" width=\"890\" height=\"596\" alt=\"fish photo\" typeof=\"foaf:Image\" />\n\n",
     "external_image": "",
     "city": "Düsseldorf",
     "street": "Berger Straße",

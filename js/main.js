@@ -106,7 +106,8 @@ var LocationList = React.createClass({
 			if(location.users && location.users[0]){
 				var users = location.users;
 				users.map(function(user,userIndex){
-					$.get("http://lunchapp/userinfofromid/"+user.userId, function(result){
+					//$.get("http://lunchapp/userinfofromid/"+user.userId, function(result){
+					$.get("example-data/userInfo-"+user.userId+".json", function(result){
 						var data = result[0];
 						if(data){
 							user.firstname = data.firstname;

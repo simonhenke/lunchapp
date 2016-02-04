@@ -8,7 +8,8 @@
     "city": "Düsseldorf",
     "street": "Hammer Str.",
     "house_number": "26",
-    "distance": "0.40"
+    "distance": "0.40",
+    "tags": "Burger, Fleisch, Salat, vegetarisch"
   },
   {
     "name": "Fishhouse Deluxe",
@@ -19,7 +20,8 @@
     "city": "Düsseldorf",
     "street": "Berger Straße",
     "house_number": "3",
-    "distance": "2.70"
+    "distance": "2.70",
+    "tags": "Fleisch"
   },
   {
     "name": "Bäcker an der Post",
@@ -30,7 +32,8 @@
     "city": "Düsseldorf",
     "street": "Hammer Str.",
     "house_number": "27",
-    "distance": "0.20"
+    "distance": "0.20",
+    "tags": "Salat, Backwaren"
   },
   {
     "name": "Vapiano ",
@@ -41,7 +44,8 @@
     "city": "Düsseldorf",
     "street": "Hammer Str.",
     "house_number": "17",
-    "distance": "0.40"
+    "distance": "0.40",
+    "tags": "Pizza, Fleisch, Pasta, vegetarisch, Salat"
   },
   {
     "name": "Saft-Bar 3000",
@@ -52,6 +56,7 @@
     "city": "Düsseldorf",
     "street": "Ackerstraße ",
     "house_number": "142",
-    "distance": "4.60"
+    "distance": "4.60",
+    "tags": "vegetarisch"
   }
 ]

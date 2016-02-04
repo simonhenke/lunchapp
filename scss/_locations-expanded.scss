@@ -32,12 +32,12 @@
 
 		&__name{
 			&:after{
-				content:"-";
+				border-width: 0 10px 10px 10px;
 			}
 		}
 
 		&__body-wrapper{
-			margin-bottom:50px;
+			margin-bottom:60px;
 		}
 	}
 	.user-list{

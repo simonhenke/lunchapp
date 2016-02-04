@@ -12,14 +12,24 @@
 		width:100%;
 		max-width:600px;
 		margin:0 auto;
-		margin-top:$gap*2;
-		transition:transform .25s cubic-bezier(.29,.47,.5,1.5), opacity .25s;
+		transition:transform .3s cubic-bezier(.3,.5,.5,1.3), opacity .25s, max-height .25s, margin .25s;
 		transform:scale(0.01);
 		opacity:0;
+		max-height:0;
+		overflow:hidden;
+
+		@media(max-width:$screen-xs){
+			transition:transform .3s, opacity .25s, max-height .25s, margin .25s;
+		}
 
 		&--visible{
 			transform:scale(1);
 			opacity:1;
+			max-height:440px;
+			margin-top:$gap*2;
+			@media(max-width:$screen-xs){
+				max-height:375px;
+			}
 		}
 	}
 
@@ -78,6 +88,17 @@
 		padding-left:$gap;
 		padding-right:$gap;
 		text-align:center;
+	}
+
+	.tags-filter{
+		width:30%;
+		line-height:23px;
+		margin-bottom:1px;
+
+		@media(max-width:$screen-xs){
+			padding:$gap/2 $gap/2;
+			width:40%;	
+		}
 	}
 
 	&__file-upload{

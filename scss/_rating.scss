@@ -93,7 +93,7 @@ $rating-width-small: 130px;
 	bottom:$gap*2;
 	margin-left:$gap*2;
 	transition: transform .3s;
-	z-index:20;
+	//z-index:20;
 
 	@media(max-width:$screen-md){
 		margin-left:$gap;

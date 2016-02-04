@@ -27,13 +27,24 @@
 
         display:inline-block;
         margin-top:$gap;
-        transition:transform .25s cubic-bezier(.29,.47,.5,1.5), opacity .25s;
+        transition:transform .3s cubic-bezier(.3,.5,.5,1.35), opacity .25s, max-height .25s;
         transform:scale(0.01);
         opacity:0;
+        max-height:0;
+        overflow:hidden;
+
+        @media(max-width:$screen-md){
+            transition:transform .3s, opacity .25s, max-height .25s;
+        }
 
         &--visible{
             transform:scale(1);
             opacity:1;
+            max-height:49px;
+
+            @media(max-width:$screen-md){
+                max-height:115px;
+            }
         }
     }
     &__trigger{
@@ -83,15 +94,20 @@
     /* Styles */
     background: white;
     list-style: none;
+    box-shadow: 0px 2px 8px 0px rgba(#000,0.25);
+    z-index:100;
     transition: all 0.3s ease-out;
     /* Hiding */
     opacity: 0;
     pointer-events: none;
-    z-index:100;
+   
 
 
     li {
         position: relative; /* Enable absolute positioning for checkboxes */
+        &:not(:last-of-type){
+            border-bottom:1px solid darken(#fff,7%);
+        }
     }
 
     li label {

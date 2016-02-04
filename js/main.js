@@ -23,7 +23,8 @@ var LocationList = React.createClass({
 		return{
 			locations: [],
 			filteredLocations: [],
-			noResult: false
+			noResult: false,
+			finishedLoadingData: false
 		};
 	},
 
@@ -41,7 +42,8 @@ var LocationList = React.createClass({
 		var self = this;
 		this.sortLocations(locations);
 		self.setState({
-			locations: locations
+			locations: locations,
+			finishedLoadingData: true
 		});
 	},
 
@@ -60,10 +62,10 @@ var LocationList = React.createClass({
 	        	// Wait for Rating & User Data
 		        //$.when($.ajax("http://lunchapp/usersAtLocation/"+location.location_id),
 		        $.when($.ajax("example-data/usersAt-"+location.location_id+".json"),
-		        	  // $.ajax( "http://lunchapp/ratingsfromlocation/"+location.location_id)
+		        	   //$.ajax( "http://lunchapp/ratingsfromlocation/"+location.location_id)
 		        	   $.ajax("example-data/ratingsAt-"+location.location_id+".json")
 		        ).done(function( a1, a2 ) { 
-		        	console.log("done");
+		
 					var userData = a1[0]  
 					var ratingData = a2[0];
 					location.users = userData;
@@ -79,10 +81,7 @@ var LocationList = React.createClass({
 		      			location.rating = sum/ratingData.length;
 		      		}
 		      		else{location.rating = undefined;}
-
-		      		console.log(i);
-
-		      		if(i === locations.length){ // all data read
+			      	if(i === locations.length){ // all data read
 		      			self.setLocationState(locations);
 		      			self.loadUserDetails();
 		      		}
@@ -193,6 +192,39 @@ var LocationList = React.createClass({
 		});
 	},
 
+	updateVisitView: function(old_location,new_location,date){
+
+		var self = this;
+		var _locations = this.state.locations.slice(0);
+
+		var oldLocation = _locations.filter(function(obj){
+			return obj.location_id == old_location;
+		})[0];
+
+		var userObj;
+		console.log(oldLocation);
+		oldLocation.users = oldLocation.users.filter(function(user){
+			var searchedUser = false;
+			if(user.userId == self.props.currentUser){
+				searchedUser = true;
+				userObj = JSON.parse(JSON.stringify(user));
+			}
+			return !searchedUser;
+		});
+		oldLocation.userCount = oldLocation.userCount -1;
+
+
+		userObj.date = date;
+		var newLocation = _locations.filter(function(obj){
+			return obj.location_id == new_location;
+		})[0];
+
+		newLocation.users.push(userObj);
+		newLocation.userCount = newLocation.userCount + 1;
+
+		this.setLocationState(_locations);
+	},
+
 	/** --- Removes the earlier attached EventHandlers -----*/
 	detachEventHandlers: function(){
 		$(document).unbind('keypress', this.keypressHandler);
@@ -200,7 +232,6 @@ var LocationList = React.createClass({
 
 	/** --- React lifecycle function ----- */
 	componentDidMount: function () {
-
 		this.attachEventHandlers();
         this.loadLocationData();
     }, 
@@ -210,19 +241,25 @@ var LocationList = React.createClass({
     	this.detachEventHandlers();
     },
 
-    /** --- after cta-click: show dialogue with error or to choose time ----- */
-    createVisit: function(location_id){
-    	
-    	var self = this;
-    	$.get("http://lunchapp/visitstodayfromuser/"+this.props.currentUser, function(result) {
-		}).done(function(response){
-			if(response[0]){
-				self.props.showPopup("error","you already eat somewhere today! Todo:Overwrite?");
+    /** --- after cta-click: show dialogue to choose time ----- */
+    createVisit: function(_location_id){
+		var data = {location_id: _location_id}
+		this.props.showPopup("createVisit","when do you want to eat?",data);
+    },
+
+    /** --- Checks if user visits any location today
+    if so, returns the location_id, else an empty string -----*/
+    userHasVisitToday: function(userId){
+    	var location_id ="";
+    	this.state.locations.map(function(location){
+			var userFound = location.users.filter(function(user){
+					return user.userId == userId;
+			});
+			if(userFound[0]){
+				location_id = location.location_id;
 			}
-			else{
-				self.props.showPopup("createVisit","when do you want to eat?",location_id);
-			}
-		});
+    	});
+    	return location_id;
     },
 
     /** --- adds 1 to the usercount of the location with the given id ----- */
@@ -305,7 +342,15 @@ var LocationList = React.createClass({
     			switch(filterElement.type){
 
     				case "tags":
-    					
+    					_locations = _locations.filter(function(obj) {
+ 							var nonMatchingTag = false;
+    						filterElement.value.map(function(selectedTag){
+    							if(obj.tags.indexOf(selectedTag) == -1){
+    								nonMatchingTag = true;
+    							}
+    						});
+    						return !nonMatchingTag;
+						});
     				break;
 
     				case "rating":
@@ -356,56 +401,70 @@ var LocationList = React.createClass({
  		
  		var filtered = this.state.filteredLocations;
  		var renderedLocations = filtered[0] ? filtered : this.state.locations; 
+ 		var locations, loadingAnimation, listContent;
+ 		if(this.state.finishedLoadingData){
+	 		if(!this.state.noResult){
+		 		locations = 
+		 		renderedLocations.map(function(location,i){
+					var counter,cta,users;
+					if(location.userCount > 0){
+						counter = <span onClick={this.counterClickHandler.bind(this,i)} className="location__user-count">{location.userCount}</span>;
+						users = <UserList users={location.users}/>;
+					}
+					
+					if(this.props.loggedIn){
+						cta = <a onClick={this.createVisit.bind(this,location.location_id)} className="location__cta">Auch</a>
+					}
+					else{
+						cta = <a onClick={this.showPopup.bind(this,"error","You need to be logged in for this!")} className="location__cta">Auch</a>
+					}		
 
- 		var locations;
- 		if(!this.state.noResult){
-	 		locations = 
-	 		renderedLocations.map(function(location,i){
-				var counter,cta,users;
-				if(location.userCount > 0){
-					counter = <span onClick={this.counterClickHandler.bind(this,i)} className="location__user-count">{location.userCount}</span>;
-					users = <UserList users={location.users}/>;
-				}
-				
-				if(this.props.loggedIn){
-					cta = <a onClick={this.createVisit.bind(this,location.location_id)} className="location__cta">Auch</a>
-				}
-				else{
-					cta = <a onClick={this.showPopup.bind(this,"error","You need to be logged in for this!")} className="location__cta">Auch</a>
-				}		
+						return <li className={"locationItem"} key={i} data-index={i} data-location-id={location.location_id}>
+							<div className={"locationItem__wrapper"}>
+							<Location 
+								data={location}
+								index={i}
+								titleClickHandler={this.expandLocationItem}/>
 
-					return <li className={"locationItem"} key={i} data-index={i} data-location-id={location.location_id}>
-						<div className={"locationItem__wrapper"}>
-						<Location 
-							data={location}
-							index={i}
-							titleClickHandler={this.expandLocationItem}/>
+							<Rating
+								stars={location.rating}
+								starClicked={this.starClicked} 
+								location_id={location.location_id}
+								loggedIn = {this.props.loggedIn}
+								showPopup = {this.props.showPopup}/> 
+							
+							{cta}    
+				    				
+		   				<div className="location__counter-box">{counter}</div>
+		   				{users}	
 
-						<Rating
-							stars={location.rating}
-							starClicked={this.starClicked} 
-							location_id={location.location_id}
-							loggedIn = {this.props.loggedIn}
-							showPopup = {this.props.showPopup}/> 
-						
-						{cta}    
-			    				
-	   				<div className="location__counter-box">{counter}</div>
-	   				{users}	
+		   				</div>
+						</li>;
+				},this)
+			}
 
-	   				</div>
-					</li>;
-			},this)
+			listContent = <div>
+			<LocationFilter filterChanged={this.filterLocations} tags={this.props.tags}/>
+	    	<ul className="location-list">		  
+	    	  			{locations}
+		    </ul></div>
+		}else{
+			loadingAnimation = <div className="loadingAnimation">
+				<span>Loading</span>
+				<div className="spinner">
+				  <div className="bounce1"></div>
+				  <div className="bounce2"></div>
+				  <div className="bounce3"></div>
+				</div>
+			</div>;
 		}
 
 	    return (
 	    	<div>
-
-	    	<LocationFilter filterChanged={this.filterLocations} />
-
-	    	<ul className="location-list">		     	 
-    			{locations}
-		    </ul>
+	    	{loadingAnimation}
+	    	<ReactCSSTransitionGroup transitionName="locationList" transitionEnterTimeout={300} transitionLeaveTimeout={300}>   	 
+	    	{listContent}
+	    	</ReactCSSTransitionGroup>
 		    </div>
 	    );
 	}
@@ -443,10 +502,15 @@ var Location = React.createClass({
 	/** --- React function to render component ----- */
 	render: function() {	
 		var data = this.props.data;
-		var imageSrc,name,description,address,distance;
+		var imageSrc,name,description,address,distance,tags;
 
 		name = this.decodeEntities(data.name);
 		description = this.decodeEntities(data.description);
+
+		var tagArray = data.tags.split(",");
+		tags = <div className="location__tags">Tags: {tagArray.map(function(tag,index){
+			return <span className="location__tag" key={index}>{tag}</span>
+		})}</div>;
 
 		var imageAttributes = data.photo.match(/"(.*?)"/);
 		if(imageAttributes){
@@ -475,7 +539,11 @@ var Location = React.createClass({
 	      		<div className="location__body-wrapper">
 		        	<h2 className="location__name" onClick={this.titleClickHandler.bind(this,this.props.index)}>{name}</h2>
 		        	<p className="location__description">{description}</p>
-		        	<div className="location__additional-data">{address}{distance}</div>				 
+		        	<div className="location__additional-data">
+		        		{address}
+		        		{distance}
+		        		{tags}
+		        	</div>				 
 	        	</div>
 	        </div>
 	      </div>
@@ -483,7 +551,7 @@ var Location = React.createClass({
 	  }
 });
 
-/** === A Location that renders its image,name and description =====*/
+/** === Form to create a new Location (needs to be published by an admin) =====*/
 var CreateLocationForm = React.createClass({	
 
 	mixins: [LinkedStateMixin],
@@ -497,15 +565,45 @@ var CreateLocationForm = React.createClass({
 			city:"",
 			street:"",
 			houseNumber:"",
+			tags:[]
 		}
 	},
 
+	attachEventHandlers: function(){
+		$(document).mouseup(mouseupHandler);
+		function mouseupHandler(e){
+			// Check for Click outside
+			var container = $("#dd2");
+            if (!container.is(e.target)){
+            	if(container.has(e.target).length === 0){
+            		$(container).removeClass("active");
+            	}
+            }else{
+            	$(container).toggleClass("active");
+            }
+		}
+	},
+
+	componentDidMount:function(){
+		this.attachEventHandlers();
+	},
+
+	componentWillUnmount: function(){
+		$(document).unbind('mouseup', this.mouseupHandler);
+	},
+
 	hideOrShowForm: function(){
+		
 		var $form = $(".new-location__form");
 		if($($form).hasClass("new-location__form--visible")){
+			$(".new-location__form--visible").css("overflow","");
 			$($form).removeClass("new-location__form--visible");
 		}else{
 			$($form).addClass("new-location__form--visible");
+			
+			setTimeout(function(){
+				$(".new-location__form--visible").css("overflow","visible");
+			},300);		
 		}
 	},
 
@@ -539,13 +637,15 @@ var CreateLocationForm = React.createClass({
 	        destinations: [dest],
 	        travelMode: google.maps.TravelMode.BICYCLING,
 	    }, function (response, status) {
-	        if (status == google.maps.DistanceMatrixStatus.OK && response.rows[0].elements[0].status != "ZERO_RESULTS") {
+	    	console.log(response);
+	        if (status == google.maps.DistanceMatrixStatus.OK && response.rows[0].elements[0].status != "NOT_FOUND" && response.rows[0].elements[0].status != "ZERO_RESULTS") {
 	            var distance = response.rows[0].elements[0].distance.text;
 	         	var distanceVal = distance.substring(0,distance.indexOf("km")-1);
 	         	distanceVal = distanceVal.replace(/,/g,'.');
-	         //	self.createLocationRequest(distanceVal);
+	         	self.createLocationRequest(distanceVal);
 	        } else {
 	            console.log("Unable to calculate distance.");
+	            self.createLocationRequest(0);
 	        }
 	    });
 	},
@@ -565,6 +665,16 @@ var CreateLocationForm = React.createClass({
 	createLocationRequest: function(distance){
 		var self = this;
 		console.log(distance);
+		var tags = ""; 
+		console.log(this.state.tags);
+		this.state.tags.map(function(tag,index){
+			tags += "{\"target_id\":\""+tag+"\"}";
+			if(index != self.state.tags.length -1){
+				tags += ",";
+			}
+		});
+		console.log(tags);
+
 		var settings = {
 		  "url": "http://lunchapp/entity/node",
 		  "method": "POST",
@@ -573,7 +683,7 @@ var CreateLocationForm = React.createClass({
 		    "x-csrf-token": this.props.token,
 		  },
 		  "processData": false,
-		  "data": "{\n  \"type\":[{\"target_id\":\"location\"}],\n  \"title\":[{\"value\":\""+this.state.name+"\"}],\n  \"field_description\":[{\"value\":\""+this.state.description+"\"}],\n  \"field_location_photo\":[{\"value\":\"xxx\"}],\n  \"field_city\":[{\"value\":\""+this.state.city+"\"}],\n  \"field_street\":[{\"value\":\""+this.state.street+"\"}],\n  \"field_house_number\":[{\"value\":\""+this.state.houseNumber+"\"}],\n  \"field_distance\":[{\"value\":\""+distance+"\"}],\n  \"field_external_image_url\":[{\"value\":\""+this.state.externalImage+"\"}]\n}"
+		  "data": "{\n  \"type\":[{\"target_id\":\"location\"}],\n  \"title\":[{\"value\":\""+this.state.name+"\"}],\n  \"field_description\":[{\"value\":\""+this.state.description+"\"}],\n  \"field_location_photo\":[{\"value\":\"xxx\"}],\n  \"field_city\":[{\"value\":\""+this.state.city+"\"}],\n  \"field_street\":[{\"value\":\""+this.state.street+"\"}],\n  \"field_house_number\":[{\"value\":\""+this.state.houseNumber+"\"}],\n  \"field_distance\":[{\"value\":\""+distance+"\"}],\n  \"field_tags\":["+tags+"],\n  \"field_external_image_url\":[{\"value\":\""+this.state.externalImage+"\"}]\n}"
 		  
 		  ,"error": function(xhr,status,error){
 			self.props.showPopup("error","failed to create location - Error: "+error);
@@ -584,16 +694,49 @@ var CreateLocationForm = React.createClass({
 		});
 	},
 
+	tagsChanged: function(cb,tagId){
+		var changedTag = tagId;
+		var _tags = this.state.tags;
+		// -- adjust tag array in regards to user input
+		if($(cb).prop('checked')){			
+			_tags.push(changedTag); // add
+		}else{
+			_tags = jQuery.grep(_tags,function(value){
+				return value != changedTag; //remove
+			})
+		}
+		this.setState({
+			tags : _tags
+		});
+	},
+
 	/** --- React function to render component ----- */
-	render: function() {	 
+	render: function() {	
+
+		var self = this;
+		var tags, tagChoice, uploadPhoto;
+		if(this.props.tags[0]){
+			tags = this.props.tags.map(function(tag){
+				return <li key={tag.name}><input type="checkbox" id={"tag2-"+tag.name} name={"tag2-"+tag.name} onChange={self.tagsChanged.bind(self,"#tag2-"+tag.name,tag.tagId)}/><label htmlFor={"tag2-"+tag.name}>{tag.name}</label></li>
+			});
+		}
+		tagChoice = 
+		<div id="dd2" className="tags-filter">Tags
+			<ul className="tags-dropdown">
+				{tags}
+			</ul>
+		</div>;
+
+		uploadPhoto = <label className="new-location__file-upload" htmlFor="fileDEACTIVATED">Upload photo</label> ;
+	
+
 	    return (
 	      <div className="new-location">
 	      	<a className="new-location__link" onClick={this.hideOrShowForm}>Create a new location</a>
 	      	<form role="form" className="new-location__form">
 	      		<input className="new-location__name" type="text" placeholder="name" valueLink={this.linkState('name')} />
 	      		<input className="new-location__file-input" type="file" id="file" valueLink={this.linkState('photo')} />
-	      		<label className="new-location__file-upload" htmlFor="fileDEACTIVATED">Upload photo</label> 
-	      		<img src=""/>
+	      		{tagChoice}
 	      		<textarea className="new-location__description" rows={3} placeholder="description" valueLink={this.linkState('description')}></textarea>
 	      		<input className="new-location__externalImage" type="text" placeholder="external image URL" valueLink={this.linkState('externalImage')} />
 	      		<div className="new-location__address">
@@ -651,10 +794,27 @@ var LocationFilter = React.createClass({
 	},
 
 	componentDidMount: function(){
-		$("#dd").click(function(){
-			$(this).toggleClass("active");
-		});
+		this.attachEventHandlers();
 	},	
+
+	attachEventHandlers: function(){
+		$(document).mouseup(mouseupHandler);
+		function mouseupHandler(e){
+			// Check for Click outside
+			var container = $("#dd");
+            if (!container.is(e.target)){
+            	if(container.has(e.target).length === 0){
+            		$(container).removeClass("active");
+            	}
+            }else{
+            	$(container).toggleClass("active");
+            }
+		}
+	},
+
+	componentWillUnmount: function(){
+		$(document).unbind('mouseup', this.mouseupHandler);
+	},
 
 	minRatingChanged: function(stars){
 		if(stars == 1){
@@ -741,21 +901,31 @@ var LocationFilter = React.createClass({
 
 		var $filter = $(".location-filter__elements");
 		if($($filter).hasClass("location-filter__elements--visible")){
+			$(".location-filter__elements--visible").css("overflow","");
 			$($filter).removeClass("location-filter__elements--visible");
 		}else{
 			$($filter).addClass("location-filter__elements--visible");
+			
+			setTimeout(function(){
+				$(".location-filter__elements--visible").css("overflow","visible");
+			},250);		
 		}
 	},
 
 	/** --- React function to render component ----- */
 	render: function() {	
+		var self = this;
+		var tags;
+		if(this.props.tags[0]){
+			tags = this.props.tags.map(function(tag){
+				return <li key={tag.name}><input type="checkbox" id={"tag-"+tag.name} name={"tag-"+tag.name} onChange={self.tagsChanged.bind(self,"#tag-"+tag.name)}/><label htmlFor={"tag-"+tag.name}>{tag.name}</label></li>
+			});
+		}
 
 		var tagChoice = 
 		<div id="dd" className="tags-filter">Tags
 			<ul className="tags-dropdown">
-				<li><input type="checkbox" id="el-1" name="el-1" onChange={this.tagsChanged.bind(this,"#el-1")}/><label htmlFor="el-1">vegetarian</label></li>
-				<li><input type="checkbox" id="el-2" name="el-2" onChange={this.tagsChanged.bind(this,"#el-2")}/><label htmlFor="el-2">low budget</label></li>
-				<li><input type="checkbox" id="el-3" name="el-3" onChange={this.tagsChanged.bind(this,"#el-3")}/><label htmlFor="el-3">Pizza</label></li>
+				{tags}
 			</ul>
 		</div>
 
@@ -838,8 +1008,8 @@ var UserList = React.createClass({
 	 				imageAttributes = user.picture.match(/"(.*?)"/);
 	 				imageSrc = imageAttributes[0].replace(/['"]+/g, '');
 	 			}else{
-					//imageSrc = "http://lunchapp/sites/default/files/profilepictures/unknown.png"
-					imageSrc = "example-data/pictures/unknown.png"
+					imageSrc = "http://lunchapp/sites/default/files/profilepictures/unknown.png"
+					//imageSrc = "example-data/pictures/unknown.png"
 				}
 
 				firstname = user.firstname ? user.firstname : "Unknown";
@@ -1032,8 +1202,10 @@ var LoginComponent = React.createClass({
 
 		return (
 			<div>
+			<ReactCSSTransitionGroup transitionName="login" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
 			{loginForm}
 			{loggedInInfo}
+			</ReactCSSTransitionGroup>
 			</div>
 	    );
 	}
@@ -1133,17 +1305,21 @@ var Popup = React.createClass({
 		var content;
 		var buttons;
 		var cancelButton=<a className="popup__button" onClick={this.props.hidePopup}>cancel</a>;
-		var confirmButton=<a className="popup__button" onClick={this.props.confirm}>create visit</a>
+		var createVisitButton=<a className="popup__button" onClick={this.props.confirm}>create visit</a>
+		var updateVisitButton=<a className="popup__button" onClick={this.props.confirm}>Overwrite it</a>
 		var okButton=<a className="popup__button popup__button--single" onClick={this.props.confirm}>ok</a>
 		if(this.props.type == "createVisit"){
 			content = <div><p>{this.props.text}</p>
 						<input className="popup__input popup__input--time" valueLink={this.linkState('inputData')} type="time"/></div>
 						
-			buttons = <div>{cancelButton} {confirmButton}
+			buttons = <div>{cancelButton} {createVisitButton}
 						</div>
 		}
-
-		if(this.props.type == "error" || this.props.type == "confirm"){
+		else if(this.props.type == "updateVisit"){
+			content = <div><p>{this.props.text}</p></div>	
+			buttons = <div>{cancelButton} {updateVisitButton}</div>
+		}
+		else{
 			content = <div><p>{this.props.text}</p></div>	
 			buttons = <div>{okButton}</div>
 		}
@@ -1176,15 +1352,19 @@ var App = React.createClass({
 			loginStatusUnknown:true,
 			token:"",
 			popup:"",
-			popupData:"",
+			popupData:[],
 			popupText:"",
-			newData:""
+			newData:"",
+			locationTags:[]
 		}
 	},
 
 	componentDidMount: function(){
 		this.refs.loginComponent.getUserInfo();
-		setTimeout(this.checkForNewContent,10000);
+		if(! this.state.locationTags[0]){
+			this.requestAvailableTags();
+		}
+		setTimeout(this.checkForNewContent,30000);
 	},
 
 	/** --- shows the popup - types:"error","createVisit" ----- */	
@@ -1211,8 +1391,16 @@ var App = React.createClass({
 		$.get("http://lunchapp/newcontent",function(result){
 			if(result[0]){
 				// there have been changes
-				self.refs.locationList.loadLocationData();
-			}else{
+
+				if(self.state.userInfo){
+					result.map(function(obj){
+						if(! self.state.userInfo.userId == result.uid){
+							self.refs.locationList.loadLocationData();
+						}
+					});
+				}else{
+					self.refs.locationList.loadLocationData();
+				}	
 			}
 			setTimeout(self.checkForNewContent,30000);
 		});
@@ -1241,7 +1429,6 @@ var App = React.createClass({
 				self.createRating(location_id,stars);
 			}
 		});
-		
 	},
 
 	/** --- creates a new rating in the db -----*/
@@ -1293,14 +1480,65 @@ var App = React.createClass({
 	/** --- logic executed after popup get confirmed ----- */
 	confirmPopup:function(){
 		if(this.state.popup == "createVisit"){
+					
 			// Create time format Drupal can read in json
 			var today = this.getTodaysDate();
 			var time = $(".popup__input--time").val();
 			var dateTime = today+"T"+time+":00";
-			dateTime = this.adjustTimezone(dateTime);	
-			this.createVisit(this.state.popupData,dateTime);
+			dateTime = this.adjustTimezone(dateTime);
+
+			var userHasVisit = this.refs.locationList.userHasVisitToday(this.state.userInfo.userId);	
+			if(! userHasVisit){
+				this.createVisit(this.state.popupData.location_id,dateTime);
+				this.hidePopup();
+			}else{
+				this.hidePopup();
+				console.log("update");
+				var data = {
+					location_id : this.state.popupData.location_id,
+					old_location_id: userHasVisit,
+					date: dateTime 
+				};
+				var msg = "You already visit a location today."
+				this.showPopup("updateVisit",msg,data);
+			}
+		} else if(this.state.popup == "updateVisit"){
+			var data = this.state.popupData;
+			this.updateVisit(data.old_location_id,data.location_id,data.date);
+			this.hidePopup();
 		}
-		this.hidePopup();
+		else{
+			this.hidePopup();
+		}
+		
+	},
+
+	updateVisit: function(old_location, new_location, date){
+		var self = this;
+		var userId = this.state.userInfo.userId;
+		// get NodeId of existing Visit 
+		$.get("http://lunchapp/todaysVisitFromUser/"+userId,function(result){
+			var visitId;
+			if(result[0]){
+				visitId = result[0].nodeId;
+
+				var settings = {
+				  	"url": "http://lunchapp/node/"+visitId,
+				  	"method": "PATCH",
+				 	"headers": {
+				    	"x-csrf-token": self.state.userInfo.token,
+				    	"content-type": "application/json",
+				    },
+				  	"processData": false,
+				 	"data": "{\n  \"nid\":[{\"value\":\""+visitId+"\"}],\n  \"type\":[{\"target_id\":\"visit\"}],\n  \"field_date\":[{\"value\":\""+date+"\"}],\n  \"field_location\":[{\"target_id\":\""+new_location+"\"}]\n}"
+				}
+				// Update the node
+				$.ajax(settings).done(function (response) {
+				   // Update View
+				   self.refs.locationList.updateVisitView(old_location,new_location, date);
+				});
+			}
+		})
 	},
 
 	/** --- Subtract 1 Hour to prevent false data display in backend -----*/
@@ -1352,6 +1590,15 @@ var App = React.createClass({
 		});			
 	},
 
+	requestAvailableTags: function(){
+		var self = this;
+		$.get("http://lunchapp/availabletags",function(tags){
+			self.setState({
+				locationTags:tags
+			});	
+		});
+	},
+
 	/** --- function called by other components to register a successfull login ----- */
 	setLoginData: function(_userInfo){
 		this.setState({
@@ -1370,6 +1617,7 @@ var App = React.createClass({
 		});
 	},
 
+	/** --- Sets the loggedIn state to false -----*/
 	setLogout: function(){
 		this.setState({
 			loggedIn:false,
@@ -1405,11 +1653,13 @@ var App = React.createClass({
 									 createRating={this.userRatedHandler}
 									 token={this.state.userInfo.token} 
 									 ref={"locationList"}
+									 tags={this.state.locationTags}
 									 newData={this.state.newData}/>
 		if(this.state.loggedIn){
 			newLocation = <CreateLocationForm token={this.state.userInfo.token} 
 											  originAddress={this.props.address}
 										   	  distanceApiKey={this.props.distanceApiKey}
+										   	  tags={this.state.locationTags}
 										 	  showPopup={this.showPopup}/>
 		}
 
@@ -1417,9 +1667,8 @@ var App = React.createClass({
 
 	    return (
 	      <div className="app">
-	      	<ReactCSSTransitionGroup transitionName="login" transitionEnterTimeout={300} transitionLeaveTimeout={300}>
-	      		{loginComponent}
-	      	</ReactCSSTransitionGroup>
+	      	
+	      	{loginComponent}
 
 	      	<DateNotice />
 

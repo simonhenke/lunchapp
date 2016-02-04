@@ -20,7 +20,10 @@
 		background:darken(#fff,3%);
 		display:inline-block;
 		padding:$gap;
-		margin-bottom:3%;
+
+		&:not(:last-of-type){
+			margin-bottom:3%;
+		}
 
 		&:nth-of-type(odd){
 			margin-right:3%;
